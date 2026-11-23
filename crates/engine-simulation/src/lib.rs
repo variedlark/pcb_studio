@@ -1,7 +1,6 @@
 use domain_core::DomainModel;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 pub mod nonlinear;
 pub mod sparse_solver;
@@ -64,10 +63,7 @@ pub fn run_simulation(model: &DomainModel, config: SimulationConfig) -> Simulati
     let capacitance = (num_nets * 1e-6).max(1e-9); // Farads
     let tau = resistance * capacitance; // Constante de temps RC
 
-    let mut points = Vec::with_capacity(config.steps);
-    let mut current_voltage = 0.0;
     let target_voltage = config.initial_energy;
-    let mut total_power = 0.0;
 
     // Parallelisation de la boucle de simulation
     let (sim_points, sim_powers): (Vec<_>, Vec<_>) = (0..config.steps)
@@ -82,10 +78,10 @@ pub fn run_simulation(model: &DomainModel, config: SimulationConfig) -> Simulati
         })
         .unzip();
 
-    points = sim_points;
-    total_power = sim_powers.iter().sum();
+    let points = sim_points;
+    let total_power: f64 = sim_powers.iter().copied().sum();
 
-    let stable = points.last().map_or(true, |p| (target_voltage - p.voltage).abs() < 0.1);
+    let stable = points.last().is_none_or(|p| (target_voltage - p.voltage).abs() < 0.1);
     let avg_power = if config.steps > 0 { total_power / config.steps as f64 } else { 0.0 };
     let max_voltage = points.iter().map(|p| p.voltage).fold(0.0, f64::max);
 

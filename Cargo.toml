@@ -27,8 +27,6 @@ license = "MIT OR Apache-2.0"
 authors = ["Local Engineering Studio Contributors"]
 
 [workspace.dependencies]
-anyhow = "1.0"
-blake3 = "1.8"
 criterion = "0.5"
 indexmap = { version = "2.12", features = ["serde"] }
 rayon = "1.11"
@@ -36,9 +34,7 @@ rusqlite = { version = "0.37", features = ["bundled", "serde_json"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "2.0"
-tracing = "0.1"
 uuid = { version = "1.18", features = ["v7", "serde"] }
-zstd = "0.13"
 
 [workspace.lints.rust]
 unsafe_code = "deny"
@@ -50,13 +46,13 @@ rust_2018_idioms = { level = "warn", priority = -1 }
 unreachable_pub = "allow"
 
 [workspace.lints.clippy]
-all = "warn"
-pedantic = "allow"
-nursery = "allow"
-module_name_repetitions = "allow"
-similar_names = "allow"
-missing_panics_doc = "allow"
-missing_errors_doc = "allow"
+all = { level = "warn", priority = -2 }
+pedantic = { level = "allow", priority = -1 }
+nursery = { level = "allow", priority = -1 }
+module_name_repetitions = { level = "allow", priority = -1 }
+similar_names = { level = "allow", priority = -1 }
+missing_panics_doc = { level = "allow", priority = -1 }
+missing_errors_doc = { level = "allow", priority = -1 }
 
 [profile.release]
 opt-level = 3

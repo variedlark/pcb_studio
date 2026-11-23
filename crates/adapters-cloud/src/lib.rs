@@ -1,7 +1,6 @@
 pub mod sync_engine;
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 pub use sync_engine::{BackupStatus, CloudBackupManager, SyncEngine, SyncEvent, SyncOperation};
 
@@ -172,7 +171,7 @@ impl CloudAdapter {
     /// Get activity log for a project
     pub fn get_activity_log(changes: &[CloudChange], limit: usize) -> Vec<CloudChange> {
         let mut sorted = changes.to_vec();
-        sorted.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
+        sorted.sort_by_key(|a| std::cmp::Reverse(a.timestamp));
         sorted.into_iter().take(limit).collect()
     }
 }
@@ -188,8 +187,8 @@ mod uuid {
         pub fn new_v4() -> Self {
             // Simplified UUID v4 generation
             let mut bytes = [0u8; 16];
-            for i in 0..16 {
-                bytes[i] = (std::time::SystemTime::now()
+            for (i, byte) in bytes.iter_mut().enumerate() {
+                *byte = (std::time::SystemTime::now()
                     .duration_since(std::time::UNIX_EPOCH)
                     .unwrap_or_default()
                     .as_nanos() as u8)

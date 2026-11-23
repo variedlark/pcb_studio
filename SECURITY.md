@@ -16,8 +16,9 @@ Instead, report vulnerabilities privately with:
 - suggested fix (if available)
 
 If GitHub Security Advisories are enabled in your repository, use private
-vulnerability reporting there. Otherwise, create a private maintainer channel
-and link this policy from your repository settings.
+vulnerability reporting there. If private vulnerability reporting is not enabled, publish a monitored security
+email address in this file and in the repository settings before accepting
+security reports.
 
 We aim to acknowledge reports within 72 hours and provide a remediation plan as
 quickly as possible.

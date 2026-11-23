@@ -144,18 +144,16 @@ impl SignalIntegrityEngine {
 
     /// Analyze via properties and estimate lumped impedance and resonance effects.
     pub fn analyze_via(via: &ViaProperties) -> ViaAnalysis {
-        let total_impedance = via.resistance_mohms as f64 / 1000.0
-            + (via.inductance_nh as f64 * 2.0 * std::f64::consts::PI * 1e9) / 1e9;
+        let total_impedance = via.resistance_mohms / 1000.0
+            + (via.inductance_nh * 2.0 * std::f64::consts::PI * 1e9) / 1e9;
 
-        let resonant_frequency = 1.0
-            / (2.0
-                * std::f64::consts::PI
-                * (via.inductance_nh as f64 * via.capacitance_pf as f64).sqrt());
+        let resonant_frequency =
+            1.0 / (2.0 * std::f64::consts::PI * (via.inductance_nh * via.capacitance_pf).sqrt());
 
         ViaAnalysis {
             total_impedance_ohms: total_impedance,
             resonant_frequency_ghz: resonant_frequency / 1e9,
-            quality_factor: resonant_frequency / (via.resistance_mohms as f64 / 1000.0),
+            quality_factor: resonant_frequency / (via.resistance_mohms / 1000.0),
         }
     }
 

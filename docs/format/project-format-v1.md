@@ -5,7 +5,7 @@
 Each project lives in a directory bundle:
 
 - `manifest.json`
-- `model.sqlite`
+- `snapshot.json`
 - `assets/`
 - `autosave/`
 - `backups/`

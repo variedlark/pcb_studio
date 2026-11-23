@@ -5,32 +5,32 @@
 [![React](https://img.shields.io/badge/frontend-React_18-61dafb.svg)](https://reactjs.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-**Local Engineering Studio** est la plateforme de conception de PCB et de microprocesseurs la plus avancée au monde, conçue pour les ingénieurs exigeants. Alliant la puissance de Rust, la flexibilité de Tauri et un rendu 3D GPU de pointe, LES redéfinit les standards de l'industrie électronique.
+**Local Engineering Studio** is an experimental local-first EDA/prototyping workspace. The repository contains domain engines and a desktop shell, but PCB manufacture, simulation, and cloud workflows are not yet production-validated.
 
 ---
 
-## ✨ Fonctionnalités Révolutionnaires
+## Experimental Features
 
 ### 🧠 Intelligence de Conception
-- **Auto-Routeur Titan** : Routage automatique multi-nets avec priorités intelligentes et gestion des paires différentielles.
-- **Algorithme Push-and-Shove** : Routage interactif qui déplace dynamiquement les obstacles pour une densité maximale.
-- **Moteur de Recommandation IA** : Analyse en temps réel de votre design avec suggestions d'optimisation.
+- **Auto-router foundation**: Experimental point-grid routing; not a production PCB autorouter.
+- **Push-and-shove foundation**: Experimental obstacle relaxation; not geometry-aware routing.
+- **Recommendations**: Local heuristics for prototype workflow feedback, not AI analysis.
 
 ### ⚡ Simulation & Physique de Précision
-- **Solveur SPICE-lite & Sparse Matrix** : Simulation électrique nodale capable de gérer des millions de nœuds.
-- **Analyse d'Intégrité du Signal (SI)** : Calcul d'impédance, de diaphonie (crosstalk) et de réflexions de signal.
-- **Simulation Thermique** : Détection des points chauds (hotspots) et analyse de la dissipation de chaleur.
-- **Simulation Logique** : Moteur de simulation numérique pour architectures de microprocesseurs (RISC-V).
+- **Sparse/nonlinear foundations**: Experimental solver structures; not validated against production SPICE results.
+- **Signal-integrity estimates**: Simplified analytical calculations; not suitable for design sign-off.
+- **Thermal estimates**: Simplified component estimates; not validated thermal modeling.
+- **Logic simulation**: Small prototype gate/timing model; not RISC-V emulation.
 
 ### 🎨 Interface Studio 3D
-- **Rendu GPU Accéléré** : Visualisation 3D interactive utilisant Three.js avec instanciation pour une fluidité absolue.
-- **Système de Plugins** : Architecture extensible permettant d'ajouter des fonctionnalités personnalisées.
-- **Versioning Distribué** : Synchronisation multi-utilisateurs basée sur les Vector Clocks pour une collaboration sans conflit.
+- **3D/prototype UI**: Three.js-based visual shell; not a fabrication-accurate 3D viewer.
+- **Plugin foundation**: Registry and runner prototypes; no sandboxed production plugin system.
+- **Versioning model**: Local command history and an experimental vector-clock model; no distributed collaboration.
 
-### 🏭 Fabrication Industrielle
-- **Export Gerber RS-274X** : Génération de fichiers de fabrication de haute précision.
-- **Export STEP 3D** : Intégration mécanique parfaite avec l'exportation CAO 3D.
-- **Générateur de BOM Intelligent** : Liste de composants automatisée avec détection des fabricants.
+### Fabrication exports
+- **Gerber export**: Experimental text/geometry preview only; not manufacturing sign-off output.
+- **STEP export**: Experimental simplified preview only; not a CAD-grade AP203/AP214 model.
+- **BOM export**: Deterministic CSV/JSON grouping where source fields are available.
 
 ---
 
@@ -61,14 +61,14 @@ Le projet est structuré en crates Rust modulaires pour une performance et une m
 ### Installation
 ```bash
 # Cloner le dépôt
-git clone https://github.com/variedlark/local-engineering-studio.git
-cd local-engineering-studio
+git clone https://github.com/variedlark/pcb_studio.git
+cd pcb_studio
 
 # Installer les dépendances
 pnpm install
 
 # Lancer en mode développement
-pnpm tauri dev
+pnpm --filter desktop-shell tauri:dev
 ```
 
 ---

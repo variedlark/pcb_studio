@@ -134,6 +134,25 @@ pub struct BackupStatus {
     pub next_backup_ms: u64,
 }
 
+fn operations_conflict(left: &SyncOperation, right: &SyncOperation) -> bool {
+    operation_target(left) == operation_target(right)
+}
+
+fn operation_target(operation: &SyncOperation) -> (&'static str, &str) {
+    match operation {
+        SyncOperation::ComponentAdded { component_id, .. }
+        | SyncOperation::ComponentModified { component_id, .. }
+        | SyncOperation::ComponentDeleted { component_id } => ("component", component_id),
+        SyncOperation::NetAdded { net_id, .. }
+        | SyncOperation::NetModified { net_id, .. }
+        | SyncOperation::NetDeleted { net_id } => ("net", net_id),
+        SyncOperation::TraceAdded { trace_id, .. }
+        | SyncOperation::TraceModified { trace_id, .. }
+        | SyncOperation::TraceDeleted { trace_id } => ("trace", trace_id),
+        SyncOperation::ProjectMetaUpdated { .. } => ("metadata", "project"),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -159,7 +178,7 @@ mod tests {
                 component_id: format!("comp_{}", i),
                 data: "{}".to_string(),
             };
-            engine.record_event("user_1".to_string(), op);
+            let _event = engine.record_event("user_1".to_string(), op);
         }
 
         let events = engine.get_events_since(2);
@@ -174,24 +193,5 @@ mod tests {
         manager.record_backup();
         assert!(!manager.should_backup_now());
         assert_eq!(manager.backup_count, 1);
-    }
-}
-
-fn operations_conflict(left: &SyncOperation, right: &SyncOperation) -> bool {
-    operation_target(left) == operation_target(right)
-}
-
-fn operation_target(operation: &SyncOperation) -> (&'static str, &str) {
-    match operation {
-        SyncOperation::ComponentAdded { component_id, .. }
-        | SyncOperation::ComponentModified { component_id, .. }
-        | SyncOperation::ComponentDeleted { component_id } => ("component", component_id),
-        SyncOperation::NetAdded { net_id, .. }
-        | SyncOperation::NetModified { net_id, .. }
-        | SyncOperation::NetDeleted { net_id } => ("net", net_id),
-        SyncOperation::TraceAdded { trace_id, .. }
-        | SyncOperation::TraceModified { trace_id, .. }
-        | SyncOperation::TraceDeleted { trace_id } => ("trace", trace_id),
-        SyncOperation::ProjectMetaUpdated { .. } => ("metadata", "project"),
     }
 }

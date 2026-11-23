@@ -81,7 +81,8 @@ impl ThermalAnalyzer {
 
         for comp in model.components.values() {
             if comp.power_mw <= 0.0 {
-                component_temps.insert(comp.name.clone(), self.config.ambient_temp_c);
+                let _previous =
+                    component_temps.insert(comp.name.clone(), self.config.ambient_temp_c);
                 continue;
             }
 
@@ -89,7 +90,7 @@ impl ThermalAnalyzer {
             // T_j = T_a + P * θ_ja
             let junction_temp =
                 self.config.ambient_temp_c + (comp.power_mw / 1000.0) * self.config.theta_ja;
-            component_temps.insert(comp.name.clone(), junction_temp);
+            let _previous = component_temps.insert(comp.name.clone(), junction_temp);
 
             // Create thermal point for this component
             thermal_points.push(ThermalPoint {

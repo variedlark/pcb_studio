@@ -34,8 +34,8 @@ describe("AppShell", () => {
 
   it("renders the status bar", () => {
     render(<AppShell />);
-    expect(screen.getByText("Snap On")).toBeInTheDocument();
-    expect(screen.getByText("No workspace")).toBeInTheDocument();
+    expect(screen.getByText("Snap: On")).toBeInTheDocument();
+    expect(screen.getByText("No active project")).toBeInTheDocument();
   });
 
   it("loads the demo board into the modular PCB canvas", () => {

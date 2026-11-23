@@ -1,4 +1,4 @@
-use crate::{GridPoint3D, RouteRequest, RouteResult, route_a_star_3d};
+use crate::{GridPoint3D, RouteRequest, route_a_star_3d};
 use std::collections::HashSet;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -44,7 +44,7 @@ pub fn route_diff_pair(request: &DiffPairRequest) -> DiffPairResult {
     // Phase 2: Route N trace parallel to P
     let mut n_blocked = request.blocked_points.clone();
     for p in &p_result.path {
-        n_blocked.insert(*p);
+        let _previous = n_blocked.insert(*p);
     }
 
     let n_request = RouteRequest {

@@ -68,3 +68,9 @@ impl NewtonRaphsonSolver {
         Err("Newton-Raphson failed to converge".to_string())
     }
 }
+
+impl Default for NewtonRaphsonSolver {
+    fn default() -> Self {
+        Self::new()
+    }
+}

@@ -349,14 +349,18 @@ impl ComponentDatabase {
     }
 
     fn add_component(&mut self, component: ComponentSpec) {
-        self.components.insert(component.part_number.clone(), component);
+        let _previous = self.components.insert(component.part_number.clone(), component);
     }
 
     #[must_use]
     pub fn search_by_category(&self, category: &str) -> Vec<&ComponentSpec> {
         self.components
             .values()
-            .filter(|c| c.category.to_lowercase().contains(&category.to_lowercase()))
+            .filter(|c| {
+                let needle = category.to_lowercase();
+                c.category.to_lowercase().contains(&needle)
+                    || c.subcategory.to_lowercase().contains(&needle)
+            })
             .collect()
     }
 

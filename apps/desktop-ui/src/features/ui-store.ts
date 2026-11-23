@@ -1040,6 +1040,13 @@ export const useUiStore = create<UiState>((set, get) => ({
   },
 
   deleteSelected: async () => {
+    if (
+      typeof window !== "undefined" &&
+      typeof window.confirm === "function" &&
+      !window.confirm("Delete the selected component? You can undo this action.")
+    ) {
+      return;
+    }
     set({ busy: true });
     try {
       const projectId = await ensureProjectExists(set, get, ensureProjectOptions);

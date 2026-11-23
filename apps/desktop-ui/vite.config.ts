@@ -13,24 +13,11 @@ export default defineConfig({
   },
   build: {
     target: "esnext",
-    minify: "terser",
+    minify: "esbuild",
     cssMinify: true,
     reportCompressedSize: false,
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
-      output: {
-        manualChunks: {
-          "react-vendor": ["react", "react-dom"],
-          "three-vendor": ["three", "@react-three/fiber", "@react-three/drei"],
-          "ui-vendor": ["lucide-react", "framer-motion", "clsx"],
-        },
-      },
-    },
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      },
     },
   },
   server: {

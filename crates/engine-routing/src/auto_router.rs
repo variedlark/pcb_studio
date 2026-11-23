@@ -1,7 +1,7 @@
 use crate::{GridPoint3D, RouteRequest, RouteResult, route_a_star_3d};
 use domain_core::{DomainModel, Net};
 use engine_geometry::manhattan_distance;
-use foundation_core::{ComponentId, Point2i};
+use foundation_core::Point2i;
 use std::collections::HashSet;
 
 #[derive(Debug, Clone)]
@@ -91,7 +91,7 @@ impl AutoRouter {
 
                     // Add the routed path to blocked points for future nets
                     for point in &route_result.path {
-                        blocked_points.insert(*point);
+                        let _previous = blocked_points.insert(*point);
                     }
                 }
                 None => {
@@ -167,7 +167,8 @@ impl AutoRouter {
 
         // Add all component positions as blocked
         for comp in model.components.values() {
-            blocked.insert(GridPoint3D::new(comp.position.x, comp.position.y, comp.layer));
+            let _previous =
+                blocked.insert(GridPoint3D::new(comp.position.x, comp.position.y, comp.layer));
         }
 
         blocked
@@ -243,8 +244,8 @@ impl AutoRouter {
                         unconnected_comp.position.y,
                         unconnected_comp.layer,
                     );
-                    local.remove(&start);
-                    local.remove(&end);
+                    let _removed_start = local.remove(&start);
+                    let _removed_end = local.remove(&end);
                     local
                 },
                 max_steps: self.config.max_steps,

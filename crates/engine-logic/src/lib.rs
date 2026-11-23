@@ -44,7 +44,7 @@ impl LogicCircuit {
 
     /// Add a logic node to the circuit graph.
     pub fn add_node(&mut self, node: LogicNode) {
-        self.nodes.insert(node.id.clone(), node);
+        let _previous = self.nodes.insert(node.id.clone(), node);
     }
 
     /// Connect one output signal identifier to an input signal identifier.
@@ -61,7 +61,7 @@ impl LogicCircuit {
 
         // Set input values
         for (input_id, level) in inputs {
-            outputs.insert(input_id.clone(), *level);
+            let _previous = outputs.insert(input_id.clone(), *level);
         }
 
         // Simulate logic gates in parallel
@@ -82,7 +82,7 @@ impl LogicCircuit {
             .collect();
 
         for (output_id, level) in results {
-            outputs.insert(output_id, level);
+            let _previous = outputs.insert(output_id, level);
         }
 
         outputs
@@ -91,7 +91,7 @@ impl LogicCircuit {
     fn evaluate_gate(&self, gate: LogicGate, inputs: &[LogicLevel]) -> LogicLevel {
         match gate {
             LogicGate::And => {
-                if inputs.is_empty() || inputs.iter().any(|&l| l == LogicLevel::Low) {
+                if inputs.is_empty() || inputs.contains(&LogicLevel::Low) {
                     LogicLevel::Low
                 } else if inputs.iter().all(|&l| l == LogicLevel::High) {
                     LogicLevel::High
@@ -100,7 +100,7 @@ impl LogicCircuit {
                 }
             }
             LogicGate::Or => {
-                if inputs.iter().any(|&l| l == LogicLevel::High) {
+                if inputs.contains(&LogicLevel::High) {
                     LogicLevel::High
                 } else if inputs.iter().all(|&l| l == LogicLevel::Low) {
                     LogicLevel::Low
@@ -110,7 +110,7 @@ impl LogicCircuit {
             }
             LogicGate::Xor => {
                 let high_count = inputs.iter().filter(|&&l| l == LogicLevel::High).count();
-                if inputs.iter().any(|&l| l == LogicLevel::Undefined) {
+                if inputs.contains(&LogicLevel::Undefined) {
                     LogicLevel::Undefined
                 } else if high_count % 2 == 1 {
                     LogicLevel::High
@@ -152,7 +152,7 @@ impl LogicCircuit {
         let mut max_depth = 0;
         let mut critical_path = Vec::new();
 
-        for (node_id, node) in &self.nodes {
+        for node_id in self.nodes.keys() {
             let depth = self.calculate_depth(node_id, &mut HashMap::new());
             if depth > max_depth {
                 max_depth = depth;
@@ -200,7 +200,7 @@ impl LogicCircuit {
             .unwrap_or(0);
 
         let depth = max_input_depth + 1;
-        memo.insert(node_id.to_string(), depth);
+        let _previous = memo.insert(node_id.to_string(), depth);
         depth
     }
 }

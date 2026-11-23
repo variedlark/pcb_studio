@@ -53,8 +53,12 @@ export function usePersistedState<T>(
     throttleMs = DEFAULT_THROTTLE_MS,
     removeInvalid = true,
   } = options;
-  const serialize =
-    options.serialize ?? ((value: T) => defaultSerialize({ version, value }));
+  const serialize = useMemo(
+    () =>
+      options.serialize ??
+      ((value: T) => defaultSerialize({ version, value })),
+    [options.serialize, version],
+  );
 
   const mountedRef = useRef(false);
   const writeTimerRef = useRef<number | null>(null);

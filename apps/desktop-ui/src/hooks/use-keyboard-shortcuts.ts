@@ -23,7 +23,6 @@ type Shortcuts = {
 };
 
 const hasMeta = (event: KeyboardEvent) => event.metaKey || event.ctrlKey;
-const isLowerKey = (event: KeyboardEvent, key: string) => event.key.toLowerCase() === key;
 
 export function useKeyboardShortcuts(shortcuts: Shortcuts) {
   const handleKeyDown = useCallback(

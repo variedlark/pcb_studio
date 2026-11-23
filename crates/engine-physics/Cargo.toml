@@ -6,10 +6,7 @@ license.workspace = true
 authors.workspace = true
 
 [dependencies]
-domain-core = { path = "../domain-core" }
-foundation-core = { path = "../foundation-core" }
 serde.workspace = true
-indexmap.workspace = true
 rayon.workspace = true
 
 [lints]

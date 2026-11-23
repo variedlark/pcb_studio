@@ -164,7 +164,7 @@ mod tests {
     fn export_and_import_json_round_trip() {
         let mut session = ProjectSession::new("io-test");
         let component_id = foundation_core::ComponentId::new();
-        session
+        let _applied = session
             .execute(domain_core::DomainCommand::PlaceComponent {
                 component_id,
                 name: "U1".to_owned(),
@@ -185,7 +185,7 @@ mod tests {
     fn export_to_content_and_import_from_content_round_trip() {
         let mut session = ProjectSession::new("io-memory");
         let component_id = foundation_core::ComponentId::new();
-        session
+        let _applied = session
             .execute(domain_core::DomainCommand::PlaceComponent {
                 component_id,
                 name: "M1".to_owned(),
@@ -204,7 +204,7 @@ mod tests {
     fn export_svg_creates_output_file() {
         let mut session = ProjectSession::new("svg-test");
         let component_id = foundation_core::ComponentId::new();
-        session
+        let _applied = session
             .execute(domain_core::DomainCommand::PlaceComponent {
                 component_id,
                 name: "S1".to_owned(),

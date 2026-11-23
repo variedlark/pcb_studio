@@ -206,6 +206,16 @@ export const CanvasViewport = memo(function CanvasViewport({
                   className={className}
                   cx={0}
                   cy={0}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Select ${component.name}`}
+                  aria-pressed={selected}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      onSelectComponent(component.id);
+                    }
+                  }}
                   onClick={(event) => {
                     if (event.shiftKey) {
                       onToggleComponentSelection(component.id);

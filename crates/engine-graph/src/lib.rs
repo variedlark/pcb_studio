@@ -21,7 +21,7 @@ pub fn reachable_components(model: &DomainModel, seed: ComponentId) -> HashSet<C
             }
             for member in &net.members {
                 if visited.insert(*member) {
-                    let _ = queue.push_back(*member);
+                    queue.push_back(*member);
                 }
             }
         }
@@ -47,14 +47,29 @@ mod tests {
         for (id, name) in [(a, "a"), (b, "b"), (c, "c"), (d, "d")] {
             let _ = model.components.insert(
                 id,
-                Component { id, name: name.to_owned(), position: Point2i::new(0, 0), layer: 0 },
+                Component {
+                    id,
+                    name: name.to_owned(),
+                    position: Point2i::new(0, 0),
+                    layer: 0,
+                    width_um: 1000,
+                    height_um: 1000,
+                    rotation_deg: 0,
+                    power_mw: 0.0,
+                    voltage_v: 3.3,
+                    package: String::new(),
+                    category: String::new(),
+                    value: String::new(),
+                    manufacturer: String::new(),
+                    part_number: String::new(),
+                },
             );
         }
 
-        let _ = model.nets.insert(
-            NetId::new(),
-            Net { id: NetId::new(), name: "n1".to_owned(), members: vec![a, b, c] },
-        );
+        let net_id = NetId::new();
+        let _ = model
+            .nets
+            .insert(net_id, Net { id: net_id, name: "n1".to_owned(), members: vec![a, b, c] });
 
         let visited = reachable_components(&model, b);
         assert!(visited.contains(&a));

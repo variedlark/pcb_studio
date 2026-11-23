@@ -230,7 +230,7 @@ mod tests {
     fn set_component_layer_updates_and_undoes() {
         let mut model = DomainModel::new("layer");
         let component_id = ComponentId::new();
-        DomainCommand::PlaceComponent {
+        let _first_applied = DomainCommand::PlaceComponent {
             component_id,
             name: "U2".to_owned(),
             position: Point2i::new(0, 0),
@@ -282,7 +282,7 @@ mod tests {
         let first = ComponentId::new();
         let second = ComponentId::new();
 
-        DomainCommand::PlaceComponent {
+        let _second_applied = DomainCommand::PlaceComponent {
             component_id: first,
             name: "A1".to_owned(),
             position: Point2i::new(0, 0),
@@ -290,7 +290,7 @@ mod tests {
         .apply(&mut model, "test")
         .expect("place first");
 
-        DomainCommand::PlaceComponent {
+        let _second_applied = DomainCommand::PlaceComponent {
             component_id: second,
             name: "B1".to_owned(),
             position: Point2i::new(100, 0),

@@ -1,5 +1,4 @@
 use crate::{GridPoint3D, RouteRequest, RouteResult, route_a_star_3d};
-use foundation_core::Point2i;
 use std::collections::{HashMap, HashSet};
 
 pub struct PushShoveEngine {
@@ -25,8 +24,6 @@ impl PushShoveEngine {
 
         // 2. If failed, identify blocking traces
         let mut modified_traces = existing_traces.clone();
-        let mut current_blocked = request.blocked_points.clone();
-
         // Simplified Push: temporarily ignore some blocked points and see if we can route
         // In a real implementation, this would involve complex geometric shifting
         let mut relaxed_request = request.clone();
@@ -36,7 +33,7 @@ impl PushShoveEngine {
         for (id, path) in existing_traces {
             let mut test_blocked = request.blocked_points.clone();
             for p in path {
-                test_blocked.remove(p);
+                let _removed = test_blocked.remove(p);
             }
 
             let test_request =
@@ -46,7 +43,7 @@ impl PushShoveEngine {
             if test_res.success {
                 // We found the blocking trace! Try to "shove" it
                 if let Some(shoved_path) = self.shove_trace(path, &test_res.path) {
-                    modified_traces.insert(id.clone(), shoved_path);
+                    let _previous = modified_traces.insert(id.clone(), shoved_path);
                     return (test_res, modified_traces);
                 }
             }

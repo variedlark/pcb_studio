@@ -19,19 +19,19 @@ pub use push_shove::PushShoveEngine;
 pub struct GridPoint3D {
     pub x: i64,
     pub y: i64,
-    pub layer: i32,
+    pub layer: i64,
 }
 
 impl GridPoint3D {
     #[must_use]
-    pub fn new(x: i64, y: i64, layer: i32) -> Self {
-        Self { x, y, layer }
+    pub fn new<T: Into<i64>>(x: i64, y: i64, layer: T) -> Self {
+        Self { x, y, layer: layer.into() }
     }
 
     pub fn distance_to(&self, other: &GridPoint3D) -> u64 {
         let dist_xy =
             manhattan_distance_u64(Point2i::new(self.x, self.y), Point2i::new(other.x, other.y));
-        let dist_z = self.layer.abs_diff(other.layer) as u64 * 10; // Coût élevé pour changer de couche (Via)
+        let dist_z = self.layer.abs_diff(other.layer) * 10; // Coût élevé pour changer de couche (Via)
         dist_xy + dist_z
     }
 }
@@ -44,20 +44,16 @@ impl rstar::Point for GridPoint3D {
         match index {
             0 => self.x,
             1 => self.y,
-            2 => self.layer as i64,
+            2 => self.layer,
             _ => unreachable!(),
         }
     }
 
-    #[allow(
-        unsafe_code,
-        reason = "rstar::Point requires &mut i64 for a stored i32 layer; layer mutations are internal to rstar coordinate access"
-    )]
     fn nth_mut(&mut self, index: usize) -> &mut Self::Scalar {
         match index {
             0 => &mut self.x,
             1 => &mut self.y,
-            2 => unsafe { &mut *(&mut self.layer as *mut i32 as *mut i64) }, // Unsafe, but necessary for now
+            2 => &mut self.layer,
             _ => unreachable!(),
         }
     }
@@ -131,7 +127,7 @@ pub fn route_a_star_3d(request: &RouteRequest) -> RouteResult {
     let mut g_score: HashMap<GridPoint3D, u64> = HashMap::new();
     let mut expanded_nodes = 0_usize;
 
-    g_score.insert(request.start, 0);
+    let _previous = g_score.insert(request.start, 0);
     open_set.push(Node {
         point: request.start,
         cost: 0,
@@ -171,8 +167,8 @@ pub fn route_a_star_3d(request: &RouteRequest) -> RouteResult {
             let tentative_g_score = g_score.get(&current).unwrap_or(&u64::MAX) + move_cost;
 
             if tentative_g_score < *g_score.get(&next).unwrap_or(&u64::MAX) {
-                came_from.insert(next, current);
-                g_score.insert(next, tentative_g_score);
+                let _previous_came_from = came_from.insert(next, current);
+                let _previous_g_score = g_score.insert(next, tentative_g_score);
                 let f_score = tentative_g_score + next.distance_to(&request.end);
                 open_set.push(Node { point: next, cost: tentative_g_score, priority: f_score });
             }
@@ -191,7 +187,7 @@ fn neighbors_3d(current: GridPoint3D, allowed_layers: &[i32]) -> Vec<GridPoint3D
     ];
 
     for &layer in allowed_layers {
-        if layer != current.layer {
+        if i64::from(layer) != current.layer {
             n.push(GridPoint3D::new(current.x, current.y, layer));
         }
     }
@@ -240,7 +236,6 @@ pub fn to_polyline(path: &[GridPoint3D]) -> Vec<Point2i> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use domain_core::{Component, DomainModel};
 
     #[test]
     fn route_3d_finds_path_across_layers() {

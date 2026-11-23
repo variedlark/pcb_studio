@@ -4,7 +4,7 @@ use domain_core::command::DomainCommand;
 use foundation_core::{ComponentId, Point2i, ProjectId};
 
 fn bench_command_pipeline(criterion: &mut Criterion) {
-    criterion.bench_function("command_pipeline_place_move", |bencher| {
+    let _benchmark = criterion.bench_function("command_pipeline_place_move", |bencher| {
         bencher.iter(|| {
             let mut service = AppService::new();
             let project_id: ProjectId = service.create_project("bench");

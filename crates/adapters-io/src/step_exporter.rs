@@ -148,6 +148,14 @@ impl StepExporter {
     }
 }
 
+fn finite_positive(value: f64, fallback: f64) -> f64 {
+    if value.is_finite() && value > 0.0 { value } else { fallback }
+}
+
+fn escape_step_string(value: &str) -> String {
+    format!("'{}'", value.replace('\\', "\\\\").replace('\'', "''"))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -228,12 +236,4 @@ mod tests {
         assert!(step.contains("PCB_Base"));
         assert!(step.contains("RECTANGULAR_BOX"));
     }
-}
-
-fn finite_positive(value: f64, fallback: f64) -> f64 {
-    if value.is_finite() && value > 0.0 { value } else { fallback }
-}
-
-fn escape_step_string(value: &str) -> String {
-    format!("\'{}\'", value.replace('\\', "\\\\").replace('\'', "\'\'"))
 }

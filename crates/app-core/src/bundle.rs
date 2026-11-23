@@ -151,12 +151,11 @@ impl ProjectBundleStore {
         }
         let mut session = ProjectSession::from_snapshot(journal.snapshot);
         let command_path = bundle_dir.join(COMMAND_JOURNAL_FILE);
-        if let Ok(command_content) = fs::read_to_string(command_path) {
-            if let Ok(command_journal) = serde_json::from_str::<CommandJournal>(&command_content) {
-                if command_journal.project_id == project_id {
-                    session.journal = command_journal.entries;
-                }
-            }
+        if let Ok(command_content) = fs::read_to_string(command_path)
+            && let Ok(command_journal) = serde_json::from_str::<CommandJournal>(&command_content)
+            && command_journal.project_id == project_id
+        {
+            session.journal = command_journal.entries;
         }
         Ok(session)
     }
@@ -242,6 +241,25 @@ impl ProjectBundleStore {
     }
 }
 
+fn atomic_write(path: impl AsRef<Path>, contents: &[u8]) -> Result<(), std::io::Error> {
+    let path = path.as_ref();
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent)?;
+    }
+    let tmp = path.with_extension(format!("{}.tmp", std::process::id()));
+    let mut file = File::create(&tmp)?;
+    file.write_all(contents)?;
+    file.sync_all()?;
+    drop(file);
+    fs::rename(&tmp, path)?;
+    if let Some(parent) = path.parent()
+        && let Ok(dir) = File::open(parent)
+    {
+        let _ = dir.sync_all();
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -268,23 +286,4 @@ mod tests {
 
         let _cleanup = fs::remove_dir_all(root);
     }
-}
-
-fn atomic_write(path: impl AsRef<Path>, contents: &[u8]) -> Result<(), std::io::Error> {
-    let path = path.as_ref();
-    if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent)?;
-    }
-    let tmp = path.with_extension(format!("{}.tmp", std::process::id()));
-    let mut file = File::create(&tmp)?;
-    file.write_all(contents)?;
-    file.sync_all()?;
-    drop(file);
-    fs::rename(&tmp, path)?;
-    if let Some(parent) = path.parent() {
-        if let Ok(dir) = File::open(parent) {
-            let _ = dir.sync_all();
-        }
-    }
-    Ok(())
 }

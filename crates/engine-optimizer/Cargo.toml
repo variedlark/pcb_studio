@@ -6,13 +6,7 @@ license.workspace = true
 authors.workspace = true
 
 [dependencies]
-domain-core = { path = "../domain-core" }
-foundation-core = { path = "../foundation-core" }
-engine-routing = { path = "../engine-routing" }
-engine-simulation = { path = "../engine-simulation" }
-engine-physics = { path = "../engine-physics" }
 serde.workspace = true
-indexmap.workspace = true
 rayon.workspace = true
 
 [lints]

@@ -4,7 +4,6 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-app-core = { path = "../app-core" }
 domain-core = { path = "../domain-core" }
 foundation-core = { path = "../foundation-core" }
 rusqlite.workspace = true

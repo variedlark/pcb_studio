@@ -13,11 +13,34 @@ use ipc_contracts::{
     UndoRedoResponseDto,
 };
 use parking_lot::Mutex;
+use std::path::{Path, PathBuf};
 use tauri::State;
 
 #[derive(Default)]
 struct SharedAppState {
     service: Mutex<AppService>,
+}
+
+fn app_scoped_path(raw: &str, must_exist: bool) -> Result<PathBuf, String> {
+    let cwd = std::env::current_dir().map_err(|error| error.to_string())?;
+    let cwd = cwd.canonicalize().map_err(|error| error.to_string())?;
+    let path = Path::new(raw);
+    let resolved = if path.is_absolute() { path.to_path_buf() } else { cwd.join(path) };
+    let resolved = if resolved.exists() {
+        resolved.canonicalize().map_err(|error| error.to_string())?
+    } else {
+        let parent = resolved.parent().ok_or_else(|| "Invalid path".to_owned())?;
+        let parent =
+            parent.canonicalize().map_err(|_| "Output directory does not exist".to_owned())?;
+        parent.join(resolved.file_name().ok_or_else(|| "Invalid path".to_owned())?)
+    };
+    if !resolved.starts_with(&cwd) {
+        return Err("Path is outside the application workspace".to_owned());
+    }
+    if must_exist && !resolved.exists() {
+        return Err("The requested path does not exist".to_owned());
+    }
+    Ok(resolved)
 }
 
 #[tauri::command]
@@ -35,9 +58,11 @@ fn open_project(
     request: OpenProjectRequestDto,
     state: State<'_, SharedAppState>,
 ) -> Result<CreateProjectResponseDto, String> {
+    let bundle_root = app_scoped_path(&request.bundle_root, true)?;
     let mut service = state.service.lock();
     let project_id = foundation_core::ProjectId::from_uuid(request.project_id);
-    service.open_project(project_id, request.bundle_root).map_err(|error| error.to_string())?;
+    let _opened_project =
+        service.open_project(project_id, bundle_root).map_err(|error| error.to_string())?;
     Ok(CreateProjectResponseDto { project_id: project_id.as_uuid() })
 }
 
@@ -46,10 +71,10 @@ fn save_project(
     request: PersistProjectRequestDto,
     state: State<'_, SharedAppState>,
 ) -> Result<ProjectPathResponseDto, String> {
+    let bundle_root = app_scoped_path(&request.bundle_root, false)?;
     let mut service = state.service.lock();
     let project_id = foundation_core::ProjectId::from_uuid(request.project_id);
-    let path =
-        service.save_project(project_id, request.bundle_root).map_err(|error| error.to_string())?;
+    let path = service.save_project(project_id, bundle_root).map_err(|error| error.to_string())?;
     Ok(ProjectPathResponseDto {
         project_id: request.project_id,
         bundle_path: path.display().to_string(),
@@ -61,11 +86,11 @@ fn autosave_project(
     request: PersistProjectRequestDto,
     state: State<'_, SharedAppState>,
 ) -> Result<ProjectPathResponseDto, String> {
+    let bundle_root = app_scoped_path(&request.bundle_root, false)?;
     let mut service = state.service.lock();
     let project_id = foundation_core::ProjectId::from_uuid(request.project_id);
-    let path = service
-        .autosave_project(project_id, request.bundle_root)
-        .map_err(|error| error.to_string())?;
+    let path =
+        service.autosave_project(project_id, bundle_root).map_err(|error| error.to_string())?;
     Ok(ProjectPathResponseDto {
         project_id: request.project_id,
         bundle_path: path.display().to_string(),
@@ -183,6 +208,7 @@ fn export_project(
     request: ExportProjectRequestDto,
     state: State<'_, SharedAppState>,
 ) -> Result<ImportExportStatsDto, String> {
+    let output_file = app_scoped_path(&request.output_file, false)?;
     let service = state.service.lock();
     let project_id = foundation_core::ProjectId::from_uuid(request.project_id);
     let session = service
@@ -191,8 +217,8 @@ fn export_project(
         .map_err(|error| error.to_string())?;
 
     let stats = match request.format.as_str() {
-        "json" => export_project_json(session, &request.output_file),
-        "svg" => export_project_svg(session, &request.output_file),
+        "json" => export_project_json(session, &output_file),
+        "svg" => export_project_svg(session, &output_file),
         other => Err(IoAdapterError::UnsupportedFormat(other.to_owned())),
     }
     .map_err(|error| error.to_string())?;
@@ -205,8 +231,9 @@ fn import_project(
     request: ImportProjectRequestDto,
     state: State<'_, SharedAppState>,
 ) -> Result<CreateProjectResponseDto, String> {
+    let input_file = app_scoped_path(&request.input_file, true)?;
     let mut service = state.service.lock();
-    let session = import_project_json(&request.input_file, request.name_override)
+    let session = import_project_json(&input_file, request.name_override)
         .map_err(|error| error.to_string())?;
     let project_id = service.insert_session(session);
     Ok(CreateProjectResponseDto { project_id: project_id.as_uuid() })
